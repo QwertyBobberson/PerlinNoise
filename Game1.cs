@@ -124,15 +124,15 @@ namespace PerlinNoise
                         Console.WriteLine($"Octaves: {octaves}");
                         break;
                     case Trait.Scale:
-                        scale = scale + (change * 100) > 100 ? scale + (change * 100) : 100;
+                        scale = scale + (change * 100) > 1 ? scale + (change * 100) : 5;
                         Console.WriteLine($"Scale: {scale}");
                         break;
                     case Trait.Lacunarity:
-                        lacunarity = lacunarity + change > 1 ? lacunarity + change : 1.1f;
+                        lacunarity = lacunarity + change/10f > 0 ? lacunarity + change/10f : .1f;
                         Console.WriteLine($"Lacunarity: {lacunarity}");
                         break;
                     case Trait.Persistance:
-                        persistence = persistence += change/10f > 0 ? persistence + change/10f : .1f;
+                        persistence = persistence + change/10f > 0 ? persistence + change/10f : .1f;
                         Console.WriteLine($"Persistance: {persistence}");
                         break;
                     case Trait.Function:
@@ -189,41 +189,23 @@ namespace PerlinNoise
 
         private void GenerateColors()
         {
-            float max = float.MinValue;
-            float min = float.MaxValue;
             for(int x = 0; x < colors.GetLength(0); x++)
             {
                 for(int y = 0; y < colors.GetLength(1); y++)
                 {
-                    
-                    float amplitude = .5f;
+                    float amplitude = 1;
                     float frequency = 2;
                     float noiseValue = 0;
+
+                    float offsetNoise = offsetNoiseWeight == 0 ? 0 : offsetNoiseWeight * noise[x/offsetNoiseScale, y/offsetNoiseScale];
                     for(int i = 0; i < octaves; i++)
                     {
-                        noiseValue += noise[(x + xOffset + (offsetNoiseWeight * offsetNoise[x/offsetNoiseScale, y/offsetNoiseScale]))/scale * frequency, (y + yOffset + (offsetNoiseWeight * offsetNoise[x/offsetNoiseScale, y/offsetNoiseScale]))/scale * frequency] * amplitude;
+                        noiseValue += noise[(x + xOffset + offsetNoise)/scale * frequency, (y + yOffset + offsetNoise)/scale * frequency] * amplitude;
                         amplitude *= persistence;
                         frequency *= lacunarity;
                     }
 
-                    colors[x, y] = noiseValue;
-
-                    if(colors[x,y] > max)
-                    {
-                        max = noiseValue;
-                    }
-                    if(colors[x,y] < min)
-                    {
-                        min = noiseValue;
-                    }
-                }
-            }
-
-            for(int x = 0; x < colors.GetLength(0); x++)
-            {
-                for(int y = 0; y < colors.GetLength(1); y++)
-                {
-                    colors[x, y] = (colors[x, y] - min)/(max-min);
+                    colors[x, y] = (noiseValue + 1)/2;
                 }
             }
         }
