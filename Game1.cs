@@ -45,8 +45,6 @@ namespace PerlinNoise
             // TODO: Add your initialization logic here
             block = new Texture2D(_graphics.GraphicsDevice, 1, 1);
             block.SetData<Color>(0, null, new Color[] {Color.White}, 0, 1);
-            noise = new PerlinNoise();
-            offsetNoise = new PerlinNoise();
             base.Initialize();
         }
 
@@ -197,10 +195,10 @@ namespace PerlinNoise
                     float frequency = 2;
                     float noiseValue = 0;
 
-                    float offsetNoise = offsetNoiseWeight == 0 ? 0 : offsetNoiseWeight * noise[x/offsetNoiseScale, y/offsetNoiseScale];
+                    float offsetNoise = offsetNoiseWeight == 0 ? 0 : offsetNoiseWeight * PerlinNoise.GetPoint(x/offsetNoiseScale, y/offsetNoiseScale);
                     for(int i = 0; i < octaves; i++)
                     {
-                        noiseValue += noise[(x + xOffset + offsetNoise)/scale * frequency, (y + yOffset + offsetNoise)/scale * frequency] * amplitude;
+                        noiseValue += PerlinNoise.GetPoint((x + xOffset + offsetNoise)/scale * frequency, (y + yOffset + offsetNoise)/scale * frequency) * amplitude;
                         amplitude *= persistence;
                         frequency *= lacunarity;
                     }
